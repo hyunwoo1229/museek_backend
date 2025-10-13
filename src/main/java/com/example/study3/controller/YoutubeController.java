@@ -3,6 +3,7 @@ package com.example.study3.controller;
 import com.example.study3.dto.ErrorResponse;
 import com.example.study3.dto.SuccessResponse;
 import com.example.study3.service.YoutubeService;
+import jakarta.servlet.http.HttpServletRequest; // HttpServletRequest 임포트
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,32 +21,38 @@ public class YoutubeController {
 
     private final YoutubeService youtubeService;
 
-    // 유튜브 계정 연결을 위한 Google OAuth 로그인 URL 생성 및 리디렉션
-    @GetMapping("/connect")
-    public void connectYoutube(@RequestParam String token, HttpServletResponse response) throws IOException {
+
+    //프론트엔드에 Google OAuth 인증 URL을 생성하여 반환하는 엔드포인트
+    @GetMapping("/auth-url")
+    public ResponseEntity<?> generateGoogleAuthUrl(HttpServletRequest request) {
         try {
-            String redirectUrl = youtubeService.generateGoogleAuthUrl(token);
-            response.sendRedirect(redirectUrl);
+            // "Bearer " 접두사 제거 후 토큰 추출
+            String token = request.getHeader("Authorization").substring(7);
+            String authUrl = youtubeService.generateGoogleAuthUrl(token);
+            // URL 문자열을 직접 응답 바디에 담아 반환
+            return ResponseEntity.ok(authUrl);
         } catch (Exception e) {
-            response.sendRedirect("http://localhost:5173/error?msg=" +
-                    URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+            // 예외 발생 시 에러 메시지를 담은 응답 반환
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("인증 URL 생성에 실패했습니다: " + e.getMessage()));
         }
     }
 
-    // 구글에서 authorization code를 전달받아 access token 교환을 시작하는 콜백 핸들러
+    //구글 로그인 성공 후 리디렉션될 콜백 엔드포인트
     @GetMapping("/oauth2/callback")
     public void handleYoutubeCallback(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws IOException {
         try {
             youtubeService.handleCallback(code, state);
-            response.sendRedirect("http://localhost:5173/upload/finish");
+            // 콜백 처리가 끝나면, 실제 업로드를 시작할 프론트엔드 페이지로 리디렉션
+            response.sendRedirect("http://localhost:5173/upload-finish"); // 사용하는 프론트엔드 주소로 변경
         } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("http://localhost:5173/error?msg=" +
-                    URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8));
+                    URLEncoder.encode("유튜브 연동 중 오류가 발생했습니다.", StandardCharsets.UTF_8));
         }
     }
 
-    //유튜브 업로드
+    //최종적으로 비디오를 업로드하는 엔드포인트
     @PostMapping("/{id}")
     public ResponseEntity<?> uploadToYoutube(@PathVariable Long id, Authentication authentication) {
         try {

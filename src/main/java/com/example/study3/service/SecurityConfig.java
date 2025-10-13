@@ -51,6 +51,7 @@ public class SecurityConfig {
                                 "/api/member/register", // 회원가입 주소가 있다면 추가
                                 "/api/auth/reissue"
                         ).permitAll()
+                        .requestMatchers("/api/youtube/oauth2/callback").permitAll()
                         .requestMatchers(
                                 "/api/chat/**",
                                 "/api/member/update-extra",
