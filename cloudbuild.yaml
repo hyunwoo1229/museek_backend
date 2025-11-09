@@ -1,3 +1,7 @@
+options:
+  # 로그를 Cloud Logging 서비스에만 저장하도록 명시하여 오류를 해결합니다.
+  logging: CLOUD_LOGGING_ONLY
+
 steps:
   # 1. 도커 이미지 빌드 (Dockerfile 경로 확인)
   - name: 'gcr.io/cloud-builders/docker'
