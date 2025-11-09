@@ -1,30 +1,44 @@
+# Cloud Build가 빌드 로그를 저장할 방식을 지정합니다.
 options:
-  # 로그를 Cloud Logging 서비스에만 저장하도록 명시하여 오류를 해결합니다.
   logging: CLOUD_LOGGING_ONLY
 
+# Cloud Build가 빌드를 실행할 서비스 계정 지정
+serviceAccount: '976640207402-compute@developer.gserviceaccount.com'
+
 steps:
-  # 1. 도커 이미지 빌드 (Dockerfile 경로 확인)
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/museek-backend:$COMMIT_SHA', '.']
-    # Note:
-    # -t (태그): Artifact Registry/Container Registry의 경로입니다.
-    # $PROJECT_ID와 $COMMIT_SHA는 Cloud Build에서 자동으로 제공하는 변수입니다.
-
-  # 2. 빌드된 도커 이미지를 Artifact Registry에 푸시
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/museek-backend:$COMMIT_SHA']
-
-  # 3. Cloud Run에 배포
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  # 1) Gradle 빌드 (캐시 새로고침 + 데몬 비활성 + clean)
+  - name: 'gradle:jdk21'
+    entrypoint: 'bash'
     args:
-      - gcloud
-      - run
-      - deploy
-      - museek-backend   # Cloud Run 서비스 이름 (스크린샷 museek-backend)
-      - --image=gcr.io/$PROJECT_ID/museek-backend:$COMMIT_SHA
-      - --region=asia-northeast3 # 배포 리전 (스크린샷 asia-northeast3)
-      - --platform=managed
-      - --allow-unauthenticated # 비인증 액세스 허용 (현재 설정 유지)
-      - --set-env-vars=SPRING_PROFILES_ACTIVE=prod # 필요시 환경변수 설정
-    # 기타 필요한 Cloud Run 옵션 (예: --memory, --cpu 등)을 추가할 수 있습니다.
-timeout: '1600s' # 빌드 시간이 길 경우 타임아웃을 늘립니다 (예: 1600초)
+      - '-c'
+      - './gradlew clean bootJar -x test --no-daemon --refresh-dependencies'
+    id: 'Build-Application-Jar'
+
+  # 2) Docker 이미지 빌드
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/pixo-website-472609/museek-backend:4a50753817fd5f21f49af18ada47b689519465fb', '.']
+    id: 'Build-Docker-Image'
+    waitFor: ['Build-Application-Jar']
+
+  # 3) Docker 이미지 Push
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/pixo-website-472609/museek-backend:4a50753817fd5f21f49af18ada47b689519465fb']
+    id: 'Push-Docker-Image'
+    waitFor: ['Build-Docker-Image']
+
+  # 4) Cloud Run 배포
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'pixo-website-service'
+      - '--image'
+      - 'gcr.io/pixo-website-472609/museek-backend:4a50753817fd5f21f49af18ada47b689519465fb'
+      - '--region'
+      - 'asia-northeast3'
+      - '--platform'
+      - 'managed'
+      - '--quiet'
+    id: 'Deploy-to-Cloud-Run'
+    waitFor: ['Push-Docker-Image']
