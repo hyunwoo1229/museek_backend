@@ -1,0 +1,26 @@
+steps:
+  # 1. 도커 이미지 빌드 (Dockerfile 경로 확인)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/museek-backend:$COMMIT_SHA', '.']
+    # Note:
+    # -t (태그): Artifact Registry/Container Registry의 경로입니다.
+    # $PROJECT_ID와 $COMMIT_SHA는 Cloud Build에서 자동으로 제공하는 변수입니다.
+
+  # 2. 빌드된 도커 이미지를 Artifact Registry에 푸시
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/museek-backend:$COMMIT_SHA']
+
+  # 3. Cloud Run에 배포
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      - gcloud
+      - run
+      - deploy
+      - museek-backend   # Cloud Run 서비스 이름 (스크린샷 museek-backend)
+      - --image=gcr.io/$PROJECT_ID/museek-backend:$COMMIT_SHA
+      - --region=asia-northeast3 # 배포 리전 (스크린샷 asia-northeast3)
+      - --platform=managed
+      - --allow-unauthenticated # 비인증 액세스 허용 (현재 설정 유지)
+      - --set-env-vars=SPRING_PROFILES_ACTIVE=prod # 필요시 환경변수 설정
+    # 기타 필요한 Cloud Run 옵션 (예: --memory, --cpu 등)을 추가할 수 있습니다.
+timeout: '1600s' # 빌드 시간이 길 경우 타임아웃을 늘립니다 (예: 1600초)
