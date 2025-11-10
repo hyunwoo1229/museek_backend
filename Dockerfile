@@ -14,6 +14,11 @@ RUN ./gradlew bootJar
 FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
+# ✅ [수정됨] ffmpeg를 설치합니다.
+RUN apt-get update && \
+    apt-get install -y ffmpeg --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 ENV PORT 8080
