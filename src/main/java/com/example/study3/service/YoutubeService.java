@@ -33,7 +33,7 @@ public class YoutubeService {
     private String CLIENT_SECRET;
 
     private static final String CLIENT_ID = "1067642253282-b0oi07bo4l4bjhdqtkrndmdr31ekj5cc.apps.googleusercontent.com";
-    private static final String REDIRECT_URI = "http://localhost:8080/api/youtube/oauth2/callback";
+    private static final String REDIRECT_URI = "https://chw-frontend.vercel.app/api/youtube/oauth2/callback";
 
     public String generateGoogleAuthUrl(String token) {
         if (token == null || token.isBlank()) {

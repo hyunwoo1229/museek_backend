@@ -29,7 +29,7 @@ public class SunoService {
     public String generateMusic(SunoRequest request) {
 
         String taskId = UUID.randomUUID().toString(); // 고유한 taskId 생성
-        String callbackUrl = "https://fcfbc67f4e44.ngrok-free.app/api/suno/callback?taskId=" + taskId;  // 콜백 URL에 taskId를 포함하여 생성
+        String callbackUrl = "https://chw-frontend.vercel.app/api/suno/callback?taskId=" + taskId;  // 콜백 URL에 taskId를 포함하여 생성
 
         try{
             String postUrl = "https://apibox.erweima.ai/api/v1/generate";
