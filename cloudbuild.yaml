@@ -32,7 +32,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'pixo-website-service'
+      - 'museek-backend'
       - '--image'
       - 'gcr.io/pixo-website-472609/museek-backend:4a50753817fd5f21f49af18ada47b689519465fb'
       - '--region'
