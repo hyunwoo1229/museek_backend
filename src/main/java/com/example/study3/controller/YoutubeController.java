@@ -44,10 +44,10 @@ public class YoutubeController {
         try {
             youtubeService.handleCallback(code, state);
             // 콜백 처리가 끝나면, 실제 업로드를 시작할 프론트엔드 페이지로 리디렉션
-            response.sendRedirect("https://chw-frontend.vercel.app//upload-finish"); // 사용하는 프론트엔드 주소로 변경
+            response.sendRedirect("https://www.museek.store/upload-finish"); // 사용하는 프론트엔드 주소로 변경
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("https://chw-frontend.vercel.app//error?msg=" +
+            response.sendRedirect("https://https://www.museek.store/error?msg=" +
                     URLEncoder.encode("유튜브 연동 중 오류가 발생했습니다.", StandardCharsets.UTF_8));
         }
     }

@@ -71,7 +71,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         if(user.getAge() == null || user.getGender() == null || user.getCountry() == null) {
             String redirectUrl = UriComponentsBuilder
-                    .fromUriString("https://chw-frontend.vercel.app/social-extra")
+                    .fromUriString("https://www.museek.store//social-extra")
                     .queryParam("accessToken", accessToken)
                     .queryParam("refreshToken", refreshToken)
                     .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
@@ -82,7 +82,7 @@ public class CustomAuth2SuccessHandler implements AuthenticationSuccessHandler {
         }
 
         // 리다이렉트할 URL (프론트에 토큰 전달)
-        String redirectUrl = UriComponentsBuilder.fromUriString("https://chw-frontend.vercel.app/oauth-success")
+        String redirectUrl = UriComponentsBuilder.fromUriString("https://www.museek.store//oauth-success")
                 .queryParam("accessToken", accessToken)
                 .queryParam("refreshToken", refreshToken)
                 .queryParam("name", URLEncoder.encode(user.getName(), StandardCharsets.UTF_8))
