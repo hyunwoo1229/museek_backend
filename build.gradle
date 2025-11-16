@@ -46,6 +46,7 @@ dependencies {
 	implementation 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
 	implementation 'com.google.cloud:spring-cloud-gcp-starter-sql-mysql'
 	implementation 'com.mysql:mysql-connector-j'
+	implementation 'com.google.cloud:google-cloud-storage'
 	compileOnly 'org.projectlombok:lombok'
 	implementation 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

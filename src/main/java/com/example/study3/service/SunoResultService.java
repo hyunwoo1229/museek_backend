@@ -13,6 +13,7 @@ import java.util.Map;
 public class SunoResultService {
 
     private final MusicRepository musicRepository;
+    private final GcsFileService gcsFileService;
 
     public void handleSunoCallback(String taskId, Map<String, Object> callbackData) { // taskId: 음악 생성 요청 시 함께 전달했던 고유 식별자, callbackData: 콜백으로 전달된 전체 JSON 데이터
 
@@ -44,16 +45,26 @@ public class SunoResultService {
                 continue;
             }
 
+            String gcsAudioUrl;
+            String gcsPath = "music/" + id + ".mp3";
+            try {
+                gcsAudioUrl = gcsFileService.uploadFromUrl(audioUrl, gcsPath);
+            } catch (Exception e) {
+                System.err.println("GCS 업로드 실패 (ID: " + id + "): " + e.getMessage());
+                continue;
+            }
+
             // MusicEntity 객체 생성 (DB에 저장할 모델)
             MusicEntity music = new MusicEntity(
                     id,
                     (String) track.get("title"),
-                    audioUrl,
+                    gcsAudioUrl,
                     (String) track.get("image_url")
             );
             music.setTaskId(taskId);
             musicRepository.save(music);
         }
+
 
     }
 
