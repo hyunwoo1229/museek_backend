@@ -26,7 +26,7 @@ public class GcsFileService {
     public String uploadFromUrl(String sourceUrl, String destinationPath) throws Exception {
         URL fileUrl = new URL(sourceUrl);
 
-        // 1. Suno URL에서 파일을 스트림으로 읽어옵니다.
+        // 1. Suno URL에서 파일을 스트림으로 읽어옴.
         try (InputStream inputStream = fileUrl.openStream()) {
 
             // 2. GCS에 저장할 Blob 정보 생성

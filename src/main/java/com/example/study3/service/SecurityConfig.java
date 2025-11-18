@@ -45,10 +45,9 @@ public class SecurityConfig {
                 )
                  */
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 수정: 인증이 필요한 모든 경로를 여기에 추가합니다.
                         .requestMatchers(
                                 "/api/auth/login",
-                                "/api/member/register", // 회원가입 주소가 있다면 추가
+                                "/api/member/register",
                                 "/api/auth/reissue"
                         ).permitAll()
                         .requestMatchers("/api/youtube/oauth2/callback").permitAll()

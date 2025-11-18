@@ -19,7 +19,7 @@ public class MusicMigrationService {
     @Transactional
     public int migrateExistingMusicToGcs() {
 
-        List<MusicEntity> existingMusicList = musicRepository.findAll(); // 모든 항목을 가져온다고 가정
+        List<MusicEntity> existingMusicList = musicRepository.findAll();
 
         int successCount = 0;
 
